@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Performance Dashboard</title>
+        <link href="../lib/dc.min.css" rel="stylesheet">
+    </head>
+
+	<!--	<link rel="stylesheet" href="../css/dashboard.css"> -->
+
+
+<script src="../lib/crossfilter.min.js"></script>
+<script src="../lib/d3.min.js"></script>
+<script src="../lib/d3-tip.js"></script>
+<script src="../lib/dc.min.js"></script>
+<script src="dc_tbl_rowcharts.js"></script>
+
+<!--<script src="d3_static_bar_chart-3.js"></script> -->
+<script src="./js/static_dashboard_v2.js"></script>
+
+
+
+	<style>
+.d3-tip {
+	line-height: 1;
+	font-weight: bold;
+	padding: 12px;
+	#background: rgba(255, 255, 0, 0.8);
+	background: rgba(0, 0, 0, 0.8);
+	#color: #f00;
+	color: #fff;
+	border-radius: 2px;
+	pointer-events: none;
+	font: 10px sans-serif;
+}
+/* Creates a small triangle extender for the tooltip */
+/*
+.d3-tip:after {
+    box-sizing: border-box;
+	  display: inline;
+	    font-size: 10px;
+		  width: 100%;
+		    line-height: 1;
+			  color: rgba(0, 0, 0, 0.8);
+			    content: "\25BC";
+				  position: absolute;
+				    text-align: center;
+}*/
+
+/*
+.dc-chart g.row text {
+fill: #2c3e50;
+font-size: 9px;
+cursor: pointer;
+font-weight: bolder;
+}
+*/
+
+.dc-chart .pie-slice {
+	fill: #2c3e50;
+	font-size: 10px;
+	cursor: pointer;
+	font-weight: bolder;
+}
+
+.axis text {
+  font: 10px sans-serif;
+}
+.axis path,
+  .axis line {
+	fill: none;
+	stroke: #000;
+	shape-rendering: crispEdges;
+  }
+
+.legend {
+	font-size: 10px;
+}
+
+	</style>
+
+
+<div>
+    <style>
+        .ds-section {
+            border-top: solid 3px #777;
+            background-color: #fafafa;
+        }
+
+        .ds-section-title {
+            color: #777;
+            font-size: 16px;
+            font-weight: bold;
+            font-variant: small-caps;
+        }
+
+        .ds-dashboard-title {
+            color: #555;
+            font-size: 18px;
+            font-weight: bold;
+            font-variant: small-caps;
+        }
+    </style>
+</div>
+
+<body>
+
+
+<!--<h2 class="section-subtitle">Performance Dashboard</h2> -->
+<!--<h2 class="ds-dashboard-title">Performance Dashboard</h2>
+<div class="col-md-6" id='dynamic-section'> 
+<table>
+  <thead>
+	<tr>
+	  <th>Top 5 Relative Contributors</th>
+	  <th>Top 5 Relative Detractors</th>
+	  <th>Sector Selector</th>
+	</tr>
+  </thead>
+  <tbody>
+	<tr>
+	  <td> <div id="top5ContribChart"> </div></td>
+	  <td><div id="top5DetractorChart"> </div> </td>
+	  <td><div id="sectorPie"> </div> </td>
+	</tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+	<tr>
+	  <th>Top 5 Overweights</th>
+	  <th>Top 5 Underweights</th>
+	</tr>
+  </thead>
+		<td> <div id="top5OverWeightChart"> </div> </td>
+  		<td> <div id="top5UnderWeightChart"> </div> </td>
+	<tr>
+	</tr>
+  </tbody>
+</table> -->
+
+<div class="row">
+  <div class="col-md-12">
+	<p class="ds-dashboard-title">Performance Dashboard</p>
+  </div>
+
+  <div class="col-md-6 ds-section">
+	<p class="ds-section-title">Section Title</p>
+	<div class="col-md-6" id='dynamic-section'>
+		<table>
+		  <thead>
+			<tr>
+			  <th>Top 5 Relative Contributors</th>
+			  <th>Top 5 Relative Detractors</th>
+			  <th>Sector Selector</th>
+			</tr>
+		  </thead>
+		  <tbody>
+			<tr>
+			  <td> <div id="top5ContribChart"> </div></td>
+			  <td><div id="top5DetractorChart"> </div> </td>
+			  <td><div id="sectorPie"> </div> </td>
+			</tr>
+		  </tbody>
+		</table>
+
+		<table>
+		  <thead>
+			<tr>
+			  <th>Top 5 Overweights</th>
+			  <th>Top 5 Underweights</th>
+			</tr>
+		  </thead>
+				<td> <div id="top5OverWeightChart"> </div> </td>
+		  		<td> <div id="top5UnderWeightChart"> </div> </td>
+			<tr>
+			</tr>
+		  </tbody>
+		</table>
+	</div>
+  </div>
+
+  <div class="col-md-6 ds-section">
+	<p class="ds-section-title">Static Data</p>
+	<div class="col-md-6" id='static-section'>
+		<table class="table"><thead></thead><tbody></tbody></table>
+  </div>
+</div>
+
+<script>
+            dashboardTutorial.useDC();
+</script>
+
+
+<script>
+
+	var thead = d3.select('#static-section').select('thead'),
+		tbody = d3.select('#static-section').select('tbody')
+
+	// table head
+	var trHead = thead.append('tr');
+	trHead.selectAll('th')
+		//.data(['Relative Weight', 'Relative Return', 'Stock Sel', 'Legend'])
+		.data(['Relative Weight', 'Relative Return', 'Stock Sel', ''])
+		.enter()
+  		.append('th')
+		.html(function(d) {return d;});
+
+	var tr = tbody.selectAll('tr')
+		.data(['a'])
+ 		.enter()
+		.append('tr');
+
+	// columns 
+
+
+	// load the data asynchronously
+	d3.csv("../data/bottom.csv", function(error, data) {
+		if (error) { return error; }
+
+		// [ 'Relative Weight',  'Relative Return', 'Stock Selection' ]
+		var row_type = {relWt: {name: 'Relative Weight', klass: 'wtbar'},  relRet: {name: 'Relative Return', klass: 'retbar'}, stockSel: {name: 'Stock Selection', klass: 'ssbar'}};
+		////var chart = rowChart(cat.relWt);
+		var chart = rowChart()
+			.rowType(row_type.relWt); 
+			//.width(500);
+
+
+//		var relWt = d3.select('#chart-rel-wt').selectAll('div.data-item')
+//			.data([data])
+//			.enter()
+//			.append('div')
+//			.attr('class', 'data-item');
+//			.call(chart);
+
+		tr.append('td').selectAll('div.data-item')
+		 	//.data(function(d) { console.log(d); return [d.avgScores]; })
+			.data([data])
+			.enter()
+			.append('div')
+			.attr('class', 'data-item')
+			.call(chart);
+
+
+		chart.rowType(row_type.relRet);
+		tr.append('td').selectAll('div.data-item')
+			.data([data])
+			.enter()
+			.append('div')
+			.attr('class', 'data-item')
+			.call(chart);
+
+
+		chart.rowType(row_type.stockSel).legend([200, 300]);
+		tr.append('td').selectAll('div.data-item')
+			.data([data])
+			.enter()
+			.append('div')
+			.attr('class', 'data-item')
+			.call(chart);
+
+
+		});
+
+</script>
+
+
+</body>
+
+
+
+
+
+<!--
+<div class="row">
+    <div class="col-md-12">
+	    <p class="ds-dashboard-title">Performance Dashboard</p>
+		<table class="table table-condensed table-fluid">
+		  <thead>
+			<tr>
+			  <th>Top 5 Relative Contributors</th> 
+			  <th>Top 5 Relative Detractors</th> 
+			  <th>Secotr Selector</th> 
+		  <tbody>
+			<tr>
+			  <td>
+				<div>
+				</div>
+			  </td>
+			  <td>
+				<div>
+				</div>
+			  </td>
+			  <td>
+				<div>
+				</div>
+			  </td>
+	</div>
+
+	<div class="col s6">
+  		<div id="top5ContribChart"> </div>
+	</div>
+	<div class="col s6">
+		<div id="top5DetractorChart"> </div>
+	</div>
+	<div class="col s6">
+		<div id="sectorPie"> </div>
+	</div>
+
+	<div class="col s6">
+        <div id="top5OverWeightChart"> </div>
+	</div>
+	<div class="col s6">
+		<div id="top5UnderWeightChart"> </div>
+	</div>
+</div>
+-->
+
+	<footer>
+	  <!--<div id="selectmenu"> </div>-->
+	</footer>
+</html>
